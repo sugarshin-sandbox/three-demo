@@ -30,8 +30,22 @@ window.addEventListener 'DOMContentLoaded', ->
 
   # light
   directionalLight = new THREE.DirectionalLight '#fff'
-  directionalLight.position.set 0, 1, 1
+  directionalLight.position.set 1, 1, 1
   scene.add directionalLight
+
+  # directionalLight2 = new THREE.DirectionalLight '#fff'
+  # directionalLight.position.set 1, 3, 6
+  # scene.add directionalLight2
+
+  # directionalLight3 = new THREE.DirectionalLight '#fff'
+  # directionalLight.position.set 2, 10, 1
+  # scene.add directionalLight3
+
+  light = new THREE.AmbientLight 0x404040
+  scene.add light
+
+  # areaLight1 = new THREE.AreaLight 0xffffff, 1
+  # scene.add areaLight1
 
 
 
@@ -49,6 +63,7 @@ window.addEventListener 'DOMContentLoaded', ->
     # Helper ---------------------------
 
     @defaults =
+      type: 'rect'
       width: 10
       height: 10
       depth: 10
@@ -62,7 +77,13 @@ window.addEventListener 'DOMContentLoaded', ->
       @init()
 
     init: ->
-      @geometry = new THREE.BoxGeometry @options.width, @options.height, @options.depth
+      if @options.type is 'rect'
+        @geometry = new THREE.BoxGeometry @options.width, @options.height, @options.depth
+      else if @options.type is 'circle'
+        @geometry = new THREE.CircleGeometry @options.width, @options.height
+      else if @options.type is 'tri'
+        @geometry = new THREE.SphereGeometry 5, 32, 32
+
       @material = new THREE.MeshPhongMaterial color: @options.color
       @mesh = new THREE.Mesh @geometry, @material
       return this
@@ -78,8 +99,11 @@ window.addEventListener 'DOMContentLoaded', ->
       return this
 
     randomRotation: ->
+      x = @random(8, -8) / 100
+      y = @random(8, -8) / 100
+      z = @random(8, -8) / 100
       do renderLoop = =>
-        @mesh.rotation.set 0, @mesh.rotation.y + (@random(16, 0) / 100), @mesh.rotation.z + (@random(20, 0) / 100)
+        @mesh.rotation.set @mesh.rotation.x + x, @mesh.rotation.y + y, @mesh.rotation.z + z
         renderer.render scene, camera
         requestAnimationFrame renderLoop
       return this
@@ -103,49 +127,16 @@ window.addEventListener 'DOMContentLoaded', ->
   i = 0
   do addLoop = ->
     setTimeout(->
-      meshes[i] = new AddMesh color: colors[Math.floor(Math.random() * colors.length)]
+      type = ['rect', 'circle', 'tri'][Math.floor(Math.random() * 3)]
+      meshes[i] = new AddMesh(
+        type: type
+        color: colors[Math.floor(Math.random() * colors.length)]
+      )
       meshes[i].position(Math.floor(Math.random() * 32), -(Math.floor(Math.random() * 32))).add().randomRotation()
       i++
-      if i < 17 then addLoop()
-      # addLoop()
-    , 0)
-
-  # arr = new AddMesh color: '#fff'
-  # arr.add().randomRotation()
-
-  # arr2 = new AddMesh
-  # arr2.add().randomRotation()
-
-  # arr3 = new AddMesh
-  # arr3.add().randomRotation()
-
-  # arr4 = new AddMesh
-  # arr4.add().randomRotation()
-
-  # arr5 = new AddMesh
-  # arr5.add().randomRotation()
-
-  # arr6 = new AddMesh
-  # arr6.add().randomRotation()
-
-  # # geometry
-  # geometry = new THREE.CubeGeometry 10, 10, 10
-
-  # # material
-  # material = new THREE.MeshPhongMaterial color: 0xff0000
-
-  # # mesh
-  # mesh = new THREE.Mesh geometry, material
-
-  # scene.add mesh
+      if i < 32 then addLoop()
+    , 1000)
 
 
 
   renderer.render scene, camera
-
-
-
-  # do renderLoop = ->
-  #   mesh.rotation.set mesh.rotation.x + 0.01, mesh.rotation.y + 0.01, mesh.rotation.z + 0.01
-  #   renderer.render scene, camera
-  #   requestAnimationFrame renderLoop
